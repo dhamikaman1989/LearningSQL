@@ -1,0 +1,145 @@
+		ONE TO ONE relations	 
+		ONE TO MANY relations	 
+		MANY TO MANY relations	 
+
+Defining Foreign key :  Refer primary key of another file...
+					    customer_id INT,                                  | Give the name & its data type.
+						FOREIGN KEY(customer_id) REFERENCES customer(id)  | define as foreign key. add REFERENCES tablename(field name)
+	
+	
+	*********************************************************************************************************************
+	
+	CREATE TABLE customers(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    email VARCHAR(100)
+	);
+	
+	CREATE TABLE orders(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_date DATE,
+    amount DECIMAL(8,2),
+    customer_id INT,
+    FOREIGN KEY(customer_id) REFERENCES customers(id)
+	);
+	
+****************************************************************************************************************************
+							IMPLICIT INNER JOIN
+			SELECT * FROM customers, orders WHERE customers.id = orders.customer_id;
+	
+							EXPLICIT INNER JOIN
+			SELECT * FROM customers JOIN orders ON customers.id = orders.customer_id;
+	
+								LEFT JOIN 
+								---------	
+		** picks everything from Left side of table.. & rtvs related data (though it's not there ) ***
+	
+		SELECT first_name,last_name,
+				IFNULL(SUM(amount), 0) AS total_spent
+				FROM customers
+				LEFT JOIN orders
+				ON customers.id = orders.customer_id
+				GROUP BY customers.id ORDER BY total_spent;
+						
+						**** customers is on the Left side ********
+							
+								RIGHT JOIN
+				
+		SELECT * FROM customers RIGHT JOIN orders ON customers.id = orders.customer_id;  ** orders is On right side ****
+		
+			** https://dataschool.com/how-to-teach-people-sql/left-right-join-animated/ **
+
+
+		DROP TABLE customers, orders;   ** This gives an error, as we're droping Parent 1st **
+		DROP TABLE orders, customers;    ** this works fine ***	
+***************************************************************************************************************************
+			-- WORKING WITH ON DELETE CASCADE
+			
+	* If a foreign key has been added, we can't delete the records from Parent key becoz of Parent/child relation*
+	
+	However, we can do so - by adding ** ON DELETE CASCASE ** on the child table... this will delete the related record
+	from child table on deletion from Parent table as well................
+	
+	CREATE TABLE customers(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    email VARCHAR(100)
+	);
+ 
+	CREATE TABLE orders(
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		order_date DATE,
+		amount DECIMAL(8,2),
+		customer_id INT,
+		FOREIGN KEY(customer_id) REFERENCES customers(id)
+        ON DELETE CASCADE
+	);
+	
+	***************************************************************
+	 -- Both the below queries are same --
+	 
+		SELECT * FROM customers            || Here customers is on Left side ||
+			LEFT JOIN orders
+			ON customers.id = orders.customer_id;
+
+		SELECT * FROM orders			   || Here customers is on right side ||
+			RIGHT JOIN customers
+			ON customers.id = orders.customer_id;  
+		
+		
+			SELECT first_name, 
+				Ifnull(Avg(grade), 0) AS average, 
+				CASE 
+					WHEN Avg(grade) IS NULL THEN 'FAILING' 
+					WHEN Avg(grade) >= 75 THEN 'PASSING' 
+					ELSE 'FAILING' 
+				end AS passing_status 
+			FROM   students 
+			LEFT JOIN papers 
+            ON students.id = papers.student_id 
+			GROUP  BY students.id 
+			ORDER  BY average DESC;
+***************************************************************************************************************************
+
+			..........DON'T USE = NULL in WHERE Condition instead use IS NULL........
+			
+		SELECT title AS unreviewed_series
+				FROM series
+				LEFT JOIN reviews
+				ON series.id = reviews.series_id
+				WHERE rating IS NULL;
+	
+		IF(Condition, Then result, else result)....  IF(Count(rating) > 0, 'ACTIVE', 'INACTIVE') 
+
+***************************************************************************************************************************
+
+				..Joining 3 Tables..
+				
+			**Simply add one more Join (INNER, LEFT, RIGHT) and add ON with mapping fiel names**
+			
+	SELECT 
+		title,
+		rating,
+		CONCAT(first_name,' ', last_name) AS reviewer
+	FROM reviewers
+		INNER JOIN reviews 
+			ON reviewers.id = reviews.reviewer_id
+		INNER JOIN series									** Simply added one more JOIN here **
+			ON series.id = reviews.series_id;
+
+				
+***************************************************************************************************************************		
+		
+		CAN ADD -  UNIQUE - to any data type to make this unqiuq in a table..
+
+also, can make two keys (combined) as Unique..
+		PRIMARY KEY(key1, key2)  ** both comb will be unqiue in db ***
+
+
+	
+	
+
+	
+			

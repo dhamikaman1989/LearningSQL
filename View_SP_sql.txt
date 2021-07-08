@@ -1,0 +1,217 @@
+SQL Views
+
+
+CREATE OR REPLACE v_Student_latest_date AS
+	SELECT emp_id, MAX(from_date), MIN(to_date) FROM Students
+			GROUP BY emp_id
+			HAVING COUNT(*) >1
+	;
+	
+USE StudentDb;
+SELECT * FROM v_Student_latest_date;
+
+
+
+*********** Routines ************
+	* Stored Procedure  ( no limitation)
+	* Functions  (can have only 1 o/p params)
+	
+	
+	
+1. Stored Procedures
+
+	DELIMITER $$
+	CREATE PROCEDURE prc_name(param1, param2,.....)   # can be created without params..
+	BEGIN
+		SELECT * FROM Employees
+		LIMIT 1000	;	
+	END $$
+	
+	DELIMITER ;
+	
+	example:
+			USE employees;
+			DROP PROCEDURE IF EXISTS select_employees;   (for non-parameterized proc no need to enter () ).
+			DELIMITER $$
+			CREATE PROCEDURE select_employees()
+			BEGIN
+				SELECT * FROM employees LIMIT 1000;
+			END$$
+		
+			DELIMITER ;
+			
+	** invoke procedure ***
+		CALL dbname.proc_name();
+		
+		
+	
+	exercise1: (Create a procedure that will provide the average salary of all employees)
+			
+			USE employeeDB;
+			DROP PROCEDURE If EXISTS avg_salary;
+
+			DELIMITER $$
+			BEGIN
+				SELECT emp_id, AVG(salary) FROM employee GROUP BY emp_id;
+			END$$
+			
+			DELIMITER ;
+		
+			CALL avg_salary();
+			
+	** Dropping procedure ***
+			DROP proc_name;	
+			
+	
+	
+	*****************Stored Procedure with parameters (IN ) **************************
+	DELIMITER$$
+	CREATE PROCEDURE emp_salary(IN p_emp_id INTEGER)  # which type of params..   Syntax..  IN/OUT param_name data_type
+	BEGIN
+		SELECT * FROM employee WHERE emp_id= p_emp_id;	
+	END$$
+	DELIMITER;
+	
+	CALL emp_salary(1234);
+	
+	*****************************************************************************
+	
+	
+	*****************Stored Procedure with parameters (IN ) & O/p (OUT) **************************
+	DELIMITER$$
+	CREATE PROCEDURE emp_avg_Salary(IN p_emp_id INTEGER, OUT p_avg_salary DECIMAL(10,2))
+	BEGIN
+		SELECT name, AVG(salary) INTO p_avg_salary
+				FROM employees
+				WHERE id = p_emp_id;	
+	END$$
+	
+	DELIMITER;
+	
+	for calling proc with o/p params will have to use variable to receive the data....
+	
+	*************************using variables to store the o/p paramas *********************************
+	
+	SET @v_avg_sal = 0;   #  set and @ fix..
+	CALL emp_avg_Salary(11234, @v_avg_sal);
+	SELECT @v_avg_sal;
+	
+	
+2.  User defined functions..............
+
+	CREATE FUNCTION function_name(param_name datatype,...)  RETURN datatype
+	
+	DECLARE o_variabe_name data_type  # dattype must match with returnee data type
+	BEGIN
+		..... SQL Statement.......
+	END $$
+		RETURN o_variabe_name;
+	
+	DELIMITER;
+	
+	
+	example:::
+	
+		DELIMITER$$
+		CREATE FUNCTION f_avg_sala(p_emp_id INTEGER) RETURNS DECIMAL(10,2)
+		BEGIN
+		DECLARE v_avg_sala DECIMAL(10,2);
+		SELECT AVG(salary) INTO v_avg_sal  FROM employees WHERE id = p_emp_id;
+		RETURN v_avg_sal;
+		
+		END$$
+		
+		DELIMITER;
+		
+	Invoking...
+		we don't call function..
+		
+		SELECT * FROM f_avg_sala(113400);
+		
+
+		
+3.  Local variable  ::    
+						DECLARE    ***   (defined inside BEGIN/END).. can't access outside this block....
+						
+	Session variable ::
+						SET @     (variable name starts with @ )  ** can be accessed untill session is active..
+	
+	Global variable  :: (only predefined sys var can be declared...)
+						can be accessed per server... if 1 server has 100 connections.... then those connection can access it.
+						
+						SET GLOBAL var_name = value;
+							OR
+						
+						SET @@global.var_name =  value;  ( 2 times @@)
+						
+						.max_connections()   # max connections per server...
+						.max_join_size()
+						
+
+****************************************** Triggers ********************************************************************************
+
+	USE db;
+	COMMIT;
+	
+	DELIMITER $$
+	CREATE TRIGGER trg_name   BEFORE/AFTER INSERT(DML - INSERT,UPDATE,DELETE) ON table_name
+	
+	FOR EACH ROW
+	
+	BEGIN
+		IF NEW.salary < 0 THEN
+			SET NEW.salary = 0;
+		END IF;	
+	END $$
+	
+	DELIMITER;
+	
+	
+	example:
+	
+	
+		USE DB;
+		COMMIT;
+		
+		DELIMITER$$
+		
+		CREATE TRIGGER t_exp1 BEFORE INSERT ON employee
+		FOR EACH ROW
+		BEGIN
+		
+			IF NEW.hire_date > DATE_FORMAT(SYSDATE(), '%Y-%m-%d')
+				THEN SET.hire_date = DATE_FORMAT(SYSDATE(), '%y-%m-%d')
+			END IF;
+		
+		END$$
+		
+		DELIMITER;
+	
+
+
+****************************************** Indexes ********************************************************************************
+				** query optimization -  get record in less time than the normal search **
+				* Primary/unique keys are Indexes...
+	CREATE INDEX index_name 	
+		ON table_name (column1, column2,.....);
+		
+		
+		create index i_hire_date ON employees(hire_date);
+		
+		
+	show index from table_name;
+	
+		ALTER employees	DROP INDEX i_hire_date;
+		
+	
+	CREATE INDEX i_salary ON salaries(salary);
+	SELECT * FROM salaries WHERE salary > 89000;
+
+*****************	
+		
+	
+	
+	
+	
+		
+	

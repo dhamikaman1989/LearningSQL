@@ -1,0 +1,82 @@
+	NOT EQUAL
+			Operator ...  != .. can be used in Select WHERE condition.....
+					SELECT title FROM books WHERE released_year != 2017;
+___________________________________________________________________________________________				
+	
+	NOT LIKE 
+			SELECT title FROM books WHERE title NOT LIKE 'W%';
+___________________________________________________________________________________________
+	
+	Greater Than  >  ...   >= (Greater Than or Equal to)
+	Less Than  < .....  <= Less Than or Equal to...
+	
+	SELECT 99>1 ??  result will be 1 (True)..
+	
+		'A' >=  'a'	(It is True gives 1) in MySQL, while querying it is Case Insensitive..
+____________________________________________________________________________________________________________
+
+	Logical AND ... use AND -or-  && (Ampersand)
+		SELECT * FROM books WHERE author_lname='eggers' && released_year >=2000;
+		SELECT * FROM books WHERE author_lname='eggers' AND released_year >=2000;
+		
+		*** in newer versions of MySQL (8.0.17 and newer) you will need to replace && with AND.*****
+	
+	Logical OR..... can use OR ...  || (OR operator)
+		*** in newer versions of MySQL (8.0.17 and newer) you will need to replace || with OR.****
+	
+	BETWEEN ................... BETWEEN x AND y...............
+		SELECT * FROM books WERE released_year BETWEEN 2004 AND 2014;
+		
+	NOT BETWEEN ............... NOT BETWEEN x AND y...........
+		SELECT * FROM books WERE released_year NOT BETWEEN 2004 AND 2014;
+	
+	****For Date comparison ALWAYS use CAST() to explicitly covert the values......
+		instead of using String.. '1999-10-18', cast the string to DATE..
+	
+	CAST 	
+		** SELECT CAST('1990-10-10' AS DATETIME) .... gives 1990-10-10 00:00:00 ****
+		
+		** SELECT * FROM people WHERE birthdt BETWEEN CAST('1980-01-01' AS DATETIME)
+												  AND CAST('2000-01-01' AS DATETIME);
+												  
+	
+	IN 
+		** SELECT * FROM people WHERE author_fname IN ('Eggers','Lahiri','Jampa');
+		** SELECT * FROM people WHERE released_year IN (2001,2003,2005,2007,2009);
+	NOT IN
+		** SELECT * FROM people WHERE released_year NOT IN (2001,2003,2005,2007,2009);
+	
+	MODULO ..  %...   If only want Odd year..use this...   *** WHERE released_year % 2 !=0 ***
+	
+____________________________________________________________________________________________________________
+
+	CASE (Syntax)..
+		  CASE WHEN.... condition1.... THEN... VALUE1
+			   WHEN ....condition2.....THEN....VALUE2	
+			   WHEN ....condition3.....THEN....VALUE3
+			   WHEN ....condition4.....THEN....VALUE4
+			ELSE	.. Default Value....
+	END AS NAME11
+	
+	SELECT title,
+		CASE 
+			WHEN stock_quantity BETWEEN 0 AND 50 THEN '*'
+			WHEN stock_quantity BETWEEN 51 AND 100 THEN '**'
+			ELSE '***'
+		END AS STOCK
+	FROM books;	
+____________________________________________________________________________________________________________
+
+
+	
+		
+	
+
+		
+	
+	
+			
+	
+			
+				
+	
