@@ -1,0 +1,189 @@
+The general command for creating a database:
+	CREATE DATABASE database_name; 
+________________________________________________________________________
+
+_____________________To drop a database__________________________________
+	DROP DATABASE database_name; 
+		Remember to be careful with this command! Once you drop a database, it's gone!
+		;  Semicolon indicates end of Query..  can be in new line...
+________________________________________________________________________
+USE <database name>;
+ 
+-- example:    USE dog_walking_app;
+	SELECT database();   - tells the DB name...
+		& if we drop the database .. and then select database(); -- it gives NULL
+_________________________________________________________________________
+
+Creating table -  (First create DB & then Use this DB then create using below )
+
+CREATE TABLE tablename
+  (
+    column_name data_type,
+    column_name data_type
+  );
+  
+  How to check ???
+    SHOW TABLES;
+	SHOW COLUMNS FROM tablename;
+	DESC tablename;
+	
+	Dropping Tables
+		DROP TABLE <tablename>;
+		
+	Inserting data into table:
+		INSERT INTO table_name(column_name) VALUES (data);  ** Order matters..**
+			insert into cats(name,age) values("Blue",10);
+			
+		multiple inserts:
+			INSERT INTO table_name 
+					(column_name, column_name) 
+			VALUES  (value, value), 
+					(value, value), 
+					(value, value);
+	SHOW WARNINGS; 
+
+____________________________________________________________________________________________________________________________
+NULL - it means not Zero.... NULL value is assigned to any column in SQL, when the given value is not identifiable...
+	** to avoid this - give NOT NULL during the table creation while giving the data type of any column***
+	
+	When field is set as NOT NULL but default value is not given... for INT it uses 0 while for VARCHAR assigns Blank( )...
+____________________________________________________________________________________________________________________________
+
+	Primary Key with AUTO INCREMENT
+	
+	CREATE TABLE unique_cats2 (
+		cat_id INT NOT NULL AUTO_INCREMENT,
+		name VARCHAR(100),
+		age INT,
+		PRIMARY KEY (cat_id)
+	);
+		OR 
+			we can mention PRIMARY KEY during the field declaratio itseld...  
+			i.e.  cat_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+____________________________________________________________________________________________________________________________
+
+	SELECT * FROM cats where name='egg'  ** Inside Where clause... name field is case insensitive ***	
+		 so SELECT * FROM cats WHERE name='EGG' ** Both will give same result ***
+____________________________________________________________________________________________________________________________
+
+	Alias  ** We use AS to give alias name **
+	
+	SELECT cat_id AS id, name FROM cats;
+	SELECT name AS 'cat name', breed AS 'kitty breed' FROM cats;   ** for multiple text use quotes ***
+	
+____________________________________________________________________________________________________________________________
+
+	Update Query	
+			UPDATE cats SET breed='Shorthair' WHERE breed='Tabby';
+	
+____________________________________________________________________________________________________________________________
+
+running SQL source files inside command line.....  
+		first check if the SQL file is listed inside the same directory as CLI (Command Line Interface)...
+		when logged in.... run LS (list) command... if SQL file is present inside this directory... then you can run below to execute
+		the SQL source..
+				SOURCE test.sql
+				**goin forward you can use the text editor file... replace & use...***
+		mysql-ctl cli
+		use cat_app;
+		source first_file.sql
+			source testing/insert.sql  ( Give the full path)..
+____________________________________________________________________________________________________________________________
+	
+							STRING functions...
+							
+	CONCAT :: 	SELECT author_fname, author_lname FROM books; 
+				CONCAT(x,y,z) // from slides
+	CONCAT_WS (Concat with Separator).... you can pass the separator here..
+				CONCAT_WS(' - ', title, author_fname, author_lname)   ** this will add  - separator in between all the given fields..
+
+
+	SUBSTRING::  SELECT SUBSTRING('Hello World', 3, 8);    ** Count starts from 1... o/p : llo Worl (Start from 3rd Pos. for length 8)
+				 SELECT SUBSTRING('Hello World', 3);       ** Start from 3rd pos. till end of string ** o/p : llo World
+				 SELECT SUBSTRING('Hello World', -3);      ** Start counting from last(as -1)...o/p : rld **
+				 SELECT SUBSTRING('Hello World', -7);      ** o/p :: o World **
+	
+	REPLACE ::  SELECT REPLACE('Hello World', 'l', '7');  *** replace 'l' in the string with 7 ..o/p : He77o Wor7d
+				** it is Case sensitive** so  | SELECT REPLACE('HellO World','O','3') -> o/p : Hell3 World **
+				||| ctrl + /  (pc) to comment out SQL in c9. |||
+	
+	REVERSE ::  SELECT REVERSE('ANIMAL') --> LAMINA (reverse of i/p string)...
+	CHAR_LENGTH :: return the length of the string **** CHAR_LENGTH('Hello') -> o/p: 5 ****
+	LOWER . UPPER ::: changes the case of the string... all Lower/upper case ****
+____________________________________________________________________________________________________________________________
+
+	DISTINCT - finds unique data based on the selected column....
+				SELECT DISTINCT author_fname, author_lname FROM books;
+
+____________________________________________________________________________________________________________________________
+
+	ORDER BY - SELECT title, pages FROM books ORDER BY released_year;
+			   SELECT title, author_fname, author_lname FROM books ORDER BY 2; ( this'll sort based on 2nd column i.e. Lname)
+			   
+			   
+	LIMIT   ::  SELECT title FROM books LIMIT 10;  ( Gives 10 books from file)
+			::  SELECT title, released_year FROM books 
+				ORDER BY released_year DESC LIMIT 0,3;   ** this'll give books from 1st row & total records =3 ***
+			
+			::	SELECT title, released_year FROM books 
+				ORDER BY released_year DESC LIMIT 10,1;  (will give record from 11th row & total rcds = 1)
+				** postion starts from 0 in LIMIT; whereas in String it starts with 1 **
+	
+			example:: If u want to get records from 6th postion till End of file, then use some gigantic number**
+						SELECT * FROM tbl LIMIT 5,18446744073709551615;
+	
+	LIKE    ::  search inside table, like - use wildcard (%) to search better **
+	
+	LIKE with underScore::
+			::  SELECT title, stock_quantity FROM books WHERE stock_quantity LIKE '__'; 
+							** this will give books where stock quantity is in 2 digit (2 underscores) **
+				**will be used in identfying telephone format **
+						(235)234-0987 LIKE '(___)___-____'
+			::	SELECT title FROM books WHERE title LIKE '%\%%'  ** Use Backslash(\) to search for any char( % _ )
+			:: 	SELECT title FROM books WHERE title LIKE '%\_%'
+
+____________________________________________________________________________________________________________________________
+								AGGREGATE 
+								
+	COUNT  	:: 	SELECT COUNT(*) FROM books;
+			::  SELECT COUNT(DISTINCT author_fname) FROM books;
+			::  SELECT COUNT(DISTINCT author_lname, author_fname) FROM books;
+			
+	GROUP BY:: 
+			:   SELECT author_lname, COUNT(*) FROM books GROUP BY author_lname;
+			:   SELECT author_fname, author_lname, COUNT(*) FROM books GROUP BY author_lname, author_fname;
+			:   SELECT released_year, COUNT(*) FROM books GROUP BY released_year;
+	
+	MIN/MAX ::  SELECT MIN(pages) FROM books;
+			::	SELECT MAX(pages), title FROM books;  || Doesn't give correct result here...|| * both're not related...
+			Solution:
+					1. SubQuery-  ** CONS -- SLOW *** (Independent runs.. 2 queries....)*****
+							SELECT * FROM books WHERE pages=(SELECT MAX(pages) FROM books);
+			
+					2. ORDER BY-  
+							SELECT * FROM books ORDER BY pages DESC LIMIT 1;
+	
+	
+	MIN/MAX with GROUP BY ::
+					SELECT author_fname,author_lname,Min(released_year) 
+						FROM   books GROUP  BY author_lname, author_fname;
+						
+	SUM		::  SELECT author_fname,author_lname,Sum(pages)FROM books
+				GROUP BY author_lname,author_fname;
+	
+	AVG		::  SELECT AVG(stock_quantity) FROM books GROUP BY released_year;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
